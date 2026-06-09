@@ -37,13 +37,12 @@ class _FiltersSheet extends StatefulWidget {
 
 class _FiltersSheetState extends State<_FiltersSheet> {
   late FilterSelection _selection = widget.initial;
-  late DateTime _calendarMonth =
-      widget.initial.customDate ?? DateTime.now();
+  late DateTime _calendarMonth = widget.initial.customDate ?? DateTime.now();
 
   void _reset() => setState(() {
-        _selection = const FilterSelection();
-        _calendarMonth = DateTime.now();
-      });
+    _selection = const FilterSelection();
+    _calendarMonth = DateTime.now();
+  });
 
   @override
   Widget build(BuildContext context) {

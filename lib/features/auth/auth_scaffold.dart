@@ -50,7 +50,9 @@ class AuthScaffold extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      SizedBox(height: showBack ? AppSpacing.sm : AppSpacing.xxl),
+                      SizedBox(
+                        height: showBack ? AppSpacing.sm : AppSpacing.xxl,
+                      ),
                       if (showLogo) ...<Widget>[
                         const AppLogo(),
                         const SizedBox(height: AppSpacing.xl),

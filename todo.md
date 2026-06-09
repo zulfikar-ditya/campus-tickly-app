@@ -127,19 +127,20 @@ Light **and** dark mode are both designed → every widget must be theme-driven 
 
 ---
 
-## 7. Polish & verification
+## 7. Polish & verification ✅
 
-- [ ] Verify both light & dark themes match design on every screen
-- [ ] Wire up navigation between all screens
-- [ ] Consistent spacing/radius/typography pass vs design
-- [ ] `flutter analyze` clean
-- [ ] `dart format .`
-- [ ] Basic widget tests for key components (optional)
+- [x] **CategoryTag corrected to match design** — design task tags are plain neutral grey pills (no colored dot); removed the dot. Category color is now only used in the category-picker sheet.
+- [x] Navigation wired across all screens (auth ↔ home ↔ create/edit; filters sheet)
+- [x] Spacing/radius/typography pass — consistent `AppSpacing`/`AppRadius`/typography tokens; week strip centers the selected day
+- [x] `flutter analyze` clean
+- [x] `dart format .` (whole tree formatted)
+- [x] Widget tests for key flows (7 passing: smoke, auth nav, sign-in validation, home renders, FAB→Create, Sign In→Home)
+- [ ] _Manual on-device QA of light/dark on each screen — recommended (can't screenshot in this env)_
 
 ---
 
-### Categories & their colors (from design)
-`Work`, `Meeting`, `Backend`, `Personal` — each rendered as a distinct colored CategoryTag.
+### Categories (from design)
+`Work`, `Meeting`, `Backend`, `Personal` — rendered as identical neutral grey `CategoryTag` pills on task rows (the design does not color-code them). Each enum still carries a `color` used only by the category-picker sheet.
 
 ### Notes
 - Status bar mock (9:41 + icons) is just the device frame in the design — use the real device status bar.

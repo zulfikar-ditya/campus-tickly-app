@@ -67,7 +67,12 @@ class _FoundationPreviewState extends State<FoundationPreview> {
   @override
   Widget build(BuildContext context) {
     final DateTime today = DateTime.now();
-    final List<String> chips = <String>['All', 'Today', 'Yesterday', 'Last 7 days'];
+    final List<String> chips = <String>[
+      'All',
+      'Today',
+      'Yesterday',
+      'Last 7 days',
+    ];
     final int doneCount = _tasks.where((Task t) => t.isDone).length;
 
     return Scaffold(
@@ -167,7 +172,11 @@ class _FoundationPreviewState extends State<FoundationPreview> {
           Row(
             children: <Widget>[
               Expanded(
-                child: DateField(label: 'Start date', value: today, onTap: () {}),
+                child: DateField(
+                  label: 'Start date',
+                  value: today,
+                  onTap: () {},
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -229,8 +238,10 @@ class _FoundationPreviewState extends State<FoundationPreview> {
                 child: PrimaryButton(
                   label: 'Open filters',
                   onPressed: () async {
-                    final FilterSelection? result =
-                        await showFiltersSheet(context, _filters);
+                    final FilterSelection? result = await showFiltersSheet(
+                      context,
+                      _filters,
+                    );
                     if (result != null) setState(() => _filters = result);
                   },
                 ),

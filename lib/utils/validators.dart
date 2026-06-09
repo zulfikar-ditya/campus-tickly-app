@@ -1,7 +1,9 @@
 /// Simple form-field validators returning an error string, or null when valid.
 abstract final class Validators {
   static String? requiredField(String? value, {String field = 'This field'}) {
-    return (value == null || value.trim().isEmpty) ? '$field is required' : null;
+    return (value == null || value.trim().isEmpty)
+        ? '$field is required'
+        : null;
   }
 
   static String? email(String? value) {

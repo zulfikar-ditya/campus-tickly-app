@@ -27,7 +27,9 @@ class FilterSelection {
   final TaskCategory? category;
 
   bool get isDefault =>
-      dateRange == DateRangeFilter.all && customDate == null && category == null;
+      dateRange == DateRangeFilter.all &&
+      customDate == null &&
+      category == null;
 
   FilterSelection copyWith({
     DateRangeFilter? dateRange,

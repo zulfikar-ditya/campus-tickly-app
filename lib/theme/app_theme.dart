@@ -94,9 +94,8 @@ abstract final class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: const WidgetStatePropertyAll(AppPalette.white),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? c.primary
-              : c.border,
+          (states) =>
+              states.contains(WidgetState.selected) ? c.primary : c.border,
         ),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),

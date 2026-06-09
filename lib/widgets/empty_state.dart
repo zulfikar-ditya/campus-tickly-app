@@ -76,13 +76,13 @@ class _PlaceholderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     Widget bar(double width) => Container(
-          height: 10,
-          width: width,
-          decoration: BoxDecoration(
-            color: c.field,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        );
+      height: 10,
+      width: width,
+      decoration: BoxDecoration(
+        color: c.field,
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
 
     return CustomPaint(
       painter: _DashedBorderPainter(color: c.border, radius: AppRadius.lg),

@@ -37,7 +37,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return AuthScaffold(
       showBack: true,
       title: 'Forgot password?',
-      subtitle: "Enter the email linked to your account and we'll send a "
+      subtitle:
+          "Enter the email linked to your account and we'll send a "
           'reset link.',
       footer: AuthFooter(
         prompt: 'Remember it?',

@@ -22,7 +22,10 @@ class WeekDateStrip extends StatelessWidget {
   static List<DateTime> centeredWeek({DateTime? around}) {
     final DateTime base = around ?? DateTime.now();
     final DateTime day = DateTime(base.year, base.month, base.day);
-    return List<DateTime>.generate(7, (int i) => day.add(Duration(days: i - 3)));
+    return List<DateTime>.generate(
+      7,
+      (int i) => day.add(Duration(days: i - 3)),
+    );
   }
 
   bool _sameDay(DateTime a, DateTime b) =>

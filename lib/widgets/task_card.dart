@@ -55,7 +55,11 @@ class TaskCard extends StatelessWidget {
                   children: <Widget>[
                     CategoryTag(task.category),
                     const SizedBox(width: AppSpacing.sm),
-                    Icon(Icons.access_time_rounded, size: 13, color: c.textMuted),
+                    Icon(
+                      Icons.access_time_rounded,
+                      size: 13,
+                      color: c.textMuted,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       formatClock(task.start),

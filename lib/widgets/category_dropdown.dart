@@ -56,7 +56,10 @@ class CategoryDropdown extends StatelessWidget {
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
-                  title: Text(category.label, style: sheetContext.text.bodyLarge),
+                  title: Text(
+                    category.label,
+                    style: sheetContext.text.bodyLarge,
+                  ),
                   trailing: category == value
                       ? Icon(Icons.check_rounded, color: c.primary)
                       : null,

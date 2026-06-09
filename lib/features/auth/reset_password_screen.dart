@@ -44,7 +44,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       footer: AuthFooter(
         prompt: 'Remember it?',
         actionLabel: 'Back to sign in',
-        onTap: () => Navigator.of(context).popUntil((Route<dynamic> r) => r.isFirst),
+        onTap: () =>
+            Navigator.of(context).popUntil((Route<dynamic> r) => r.isFirst),
       ),
       children: <Widget>[
         Form(

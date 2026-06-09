@@ -24,8 +24,9 @@ class DateCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     final Color foreground = selected ? c.onPrimary : c.textPrimary;
-    final Color weekdayColor =
-        selected ? c.onPrimary.withValues(alpha: 0.9) : c.textSecondary;
+    final Color weekdayColor = selected
+        ? c.onPrimary.withValues(alpha: 0.9)
+        : c.textSecondary;
 
     return GestureDetector(
       onTap: onTap,

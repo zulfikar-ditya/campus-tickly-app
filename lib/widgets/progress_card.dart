@@ -8,11 +8,7 @@ import 'app_progress_bar.dart';
 /// "Today's progress" card on the home screen: completed/total + percentage on
 /// a red gradient, with a white progress bar. Handles the empty (0 of 0) case.
 class ProgressCard extends StatelessWidget {
-  const ProgressCard({
-    super.key,
-    required this.completed,
-    required this.total,
-  });
+  const ProgressCard({super.key, required this.completed, required this.total});
 
   final int completed;
   final int total;

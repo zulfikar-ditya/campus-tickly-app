@@ -64,8 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
         return _sameDay(task.start, now.subtract(const Duration(days: 1)));
       case DateRangeFilter.last7Days:
         final DateTime from = now.subtract(const Duration(days: 6));
-        final DateTime start =
-            DateTime(task.start.year, task.start.month, task.start.day);
+        final DateTime start = DateTime(
+          task.start.year,
+          task.start.month,
+          task.start.day,
+        );
         return !start.isBefore(from) && !start.isAfter(now);
       case DateRangeFilter.custom:
         return _filters.customDate != null &&
@@ -78,7 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final bool dateOk = _matchesDate(t);
       final bool categoryOk =
           _filters.category == null || t.category == _filters.category;
-      final bool queryOk = _query.trim().isEmpty ||
+      final bool queryOk =
+          _query.trim().isEmpty ||
           t.title.toLowerCase().contains(_query.trim().toLowerCase());
       return dateOk && categoryOk && queryOk;
     }).toList();
@@ -149,9 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _editTask(Task task) async {
     final Task? updated = await Navigator.of(context).push<Task>(
-      MaterialPageRoute<Task>(
-        builder: (_) => TaskFormScreen(initial: task),
-      ),
+      MaterialPageRoute<Task>(builder: (_) => TaskFormScreen(initial: task)),
     );
     if (updated == null) return;
     setState(() {
@@ -228,7 +230,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: AppSpacing.lg),
             SectionHeader(
               title: _listTitle,
-              trailing: '${visible.length} '
+              trailing:
+                  '${visible.length} '
                   '${visible.length == 1 ? 'task' : 'tasks'}',
             ),
             const SizedBox(height: AppSpacing.md),

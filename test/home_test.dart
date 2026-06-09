@@ -7,10 +7,7 @@ import 'package:campus_tickly/app.dart';
 import 'package:campus_tickly/features/tasks/home_screen.dart';
 import 'package:campus_tickly/theme/app_theme.dart';
 
-Widget _wrap() => MaterialApp(
-      theme: AppTheme.light,
-      home: const HomeScreen(),
-    );
+Widget _wrap() => MaterialApp(theme: AppTheme.light, home: const HomeScreen());
 
 void main() {
   testWidgets('Home shows the greeting and today\'s tasks', (
@@ -38,10 +35,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const TicklyApp());
 
-    await tester.enterText(
-      find.byType(TextFormField).first,
-      'user@email.com',
-    );
+    await tester.enterText(find.byType(TextFormField).first, 'user@email.com');
     await tester.enterText(find.byType(TextFormField).last, 'secret123');
     await tester.tap(find.widgetWithText(FilledButton, 'Sign In'));
     await tester.pumpAndSettle();

@@ -132,7 +132,11 @@ class AppColors extends ThemeExtension<AppColors> {
       success: Color.lerp(success, other.success, t)!,
       onSuccess: Color.lerp(onSuccess, other.onSuccess, t)!,
       error: Color.lerp(error, other.error, t)!,
-      avatarBackground: Color.lerp(avatarBackground, other.avatarBackground, t)!,
+      avatarBackground: Color.lerp(
+        avatarBackground,
+        other.avatarBackground,
+        t,
+      )!,
     );
   }
 }

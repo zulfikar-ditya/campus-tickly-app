@@ -37,6 +37,9 @@ void main() {
     await tester.tap(find.text('Forgot password?'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(FilledButton, 'Send reset link'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Send reset link'),
+      findsOneWidget,
+    );
   });
 }

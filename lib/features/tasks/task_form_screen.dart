@@ -47,7 +47,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     _title = TextEditingController(text: t?.title ?? '');
     _description = TextEditingController(text: t?.description ?? '');
     _category = t?.category;
-    _startDate = t == null ? null : DateTime(t.start.year, t.start.month, t.start.day);
+    _startDate = t == null
+        ? null
+        : DateTime(t.start.year, t.start.month, t.start.day);
     _endDate = t == null ? null : DateTime(t.end.year, t.end.month, t.end.day);
     _startTime = t == null ? null : TimeOfDay.fromDateTime(t.start);
     _endTime = t == null ? null : TimeOfDay.fromDateTime(t.end);
@@ -86,8 +88,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   Future<void> _pickTime({required bool isStart}) async {
     final TimeOfDay initial =
         (isStart ? _startTime : _endTime) ?? TimeOfDay.now();
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: initial);
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+    );
     if (picked != null) {
       setState(() {
         if (isStart) {
@@ -101,8 +105,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   void _submit() {
     setState(() {
-      _titleError =
-          _title.text.trim().isEmpty ? 'Title is required' : null;
+      _titleError = _title.text.trim().isEmpty ? 'Title is required' : null;
       _categoryError = _category == null ? 'Category is required' : null;
       _startDateError = _startDate == null ? 'Start date is required' : null;
       if (_endDate == null) {
@@ -112,7 +115,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       } else {
         _endDateError = null;
       }
-      _showBanner = _titleError != null ||
+      _showBanner =
+          _titleError != null ||
           _categoryError != null ||
           _startDateError != null ||
           _endDateError != null;
@@ -122,27 +126,39 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
     final DateTime startDate = _startDate!;
     final DateTime endDate = _endDate!;
-    final TimeOfDay startTime = _startTime ?? const TimeOfDay(hour: 9, minute: 0);
+    final TimeOfDay startTime =
+        _startTime ?? const TimeOfDay(hour: 9, minute: 0);
     final TimeOfDay endTime = _endTime ?? const TimeOfDay(hour: 10, minute: 0);
 
-    final Task result = (widget.initial ??
-            Task(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              title: '',
-              category: _category!,
-              start: startDate,
-              end: endDate,
-            ))
-        .copyWith(
-      title: _title.text.trim(),
-      category: _category,
-      start: DateTime(startDate.year, startDate.month, startDate.day,
-          startTime.hour, startTime.minute),
-      end: DateTime(endDate.year, endDate.month, endDate.day, endTime.hour,
-          endTime.minute),
-      description: _description.text.trim(),
-      emailReminder: _emailReminder,
-    );
+    final Task result =
+        (widget.initial ??
+                Task(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: '',
+                  category: _category!,
+                  start: startDate,
+                  end: endDate,
+                ))
+            .copyWith(
+              title: _title.text.trim(),
+              category: _category,
+              start: DateTime(
+                startDate.year,
+                startDate.month,
+                startDate.day,
+                startTime.hour,
+                startTime.minute,
+              ),
+              end: DateTime(
+                endDate.year,
+                endDate.month,
+                endDate.day,
+                endTime.hour,
+                endTime.minute,
+              ),
+              description: _description.text.trim(),
+              emailReminder: _emailReminder,
+            );
 
     Navigator.of(context).pop(result);
   }
@@ -195,8 +211,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             isRequired: true,
             value: _category,
             errorText: _categoryError,
-            onChanged: (TaskCategory v) =>
-                setState(() {
+            onChanged: (TaskCategory v) => setState(() {
               _category = v;
               _categoryError = null;
             }),

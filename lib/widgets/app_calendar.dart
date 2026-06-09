@@ -27,7 +27,13 @@ class AppCalendar extends StatelessWidget {
   final ValueChanged<DateTime>? onMonthChanged;
 
   static const List<String> _weekdayHeaders = <String>[
-    'S', 'M', 'T', 'W', 'T', 'F', 'S',
+    'S',
+    'M',
+    'T',
+    'W',
+    'T',
+    'F',
+    'S',
   ];
 
   bool _sameDay(DateTime? a, DateTime? b) =>
@@ -53,7 +59,8 @@ class AppCalendar extends StatelessWidget {
 
     final List<DateTime?> cells = <DateTime?>[
       ...List<DateTime?>.filled(leadingBlanks, null),
-      for (int d = 1; d <= daysInMonth; d++) DateTime(month.year, month.month, d),
+      for (int d = 1; d <= daysInMonth; d++)
+        DateTime(month.year, month.month, d),
     ];
     while (cells.length % 7 != 0) {
       cells.add(null);
@@ -71,7 +78,8 @@ class AppCalendar extends StatelessWidget {
               color: c.textSecondary,
               onPressed: onMonthChanged == null
                   ? null
-                  : () => onMonthChanged!(DateTime(month.year, month.month - 1)),
+                  : () =>
+                        onMonthChanged!(DateTime(month.year, month.month - 1)),
             ),
             IconButton(
               visualDensity: VisualDensity.compact,
@@ -79,7 +87,8 @@ class AppCalendar extends StatelessWidget {
               color: c.textSecondary,
               onPressed: onMonthChanged == null
                   ? null
-                  : () => onMonthChanged!(DateTime(month.year, month.month + 1)),
+                  : () =>
+                        onMonthChanged!(DateTime(month.year, month.month + 1)),
             ),
           ],
         ),
@@ -91,9 +100,7 @@ class AppCalendar extends StatelessWidget {
                 child: Center(
                   child: Text(
                     h,
-                    style: context.text.bodySmall?.copyWith(
-                      color: c.textMuted,
-                    ),
+                    style: context.text.bodySmall?.copyWith(color: c.textMuted),
                   ),
                 ),
               ),
@@ -106,10 +113,12 @@ class AppCalendar extends StatelessWidget {
               for (int col = 0; col < 7; col++)
                 _DayCell(
                   day: cells[row * 7 + col],
-                  selected: _sameDay(cells[row * 7 + col], selectedDate) ||
+                  selected:
+                      _sameDay(cells[row * 7 + col], selectedDate) ||
                       _sameDay(cells[row * 7 + col], rangeStart) ||
                       _sameDay(cells[row * 7 + col], rangeEnd),
-                  inRange: cells[row * 7 + col] != null &&
+                  inRange:
+                      cells[row * 7 + col] != null &&
                       _inRange(cells[row * 7 + col]!),
                   onTap: onDaySelected,
                 ),
@@ -141,8 +150,8 @@ class _DayCell extends StatelessWidget {
     final Color textColor = selected
         ? c.onPrimary
         : inRange
-            ? c.primary
-            : c.textPrimary;
+        ? c.primary
+        : c.textPrimary;
 
     return Expanded(
       child: GestureDetector(
