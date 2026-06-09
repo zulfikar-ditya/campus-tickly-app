@@ -69,7 +69,7 @@ Light **and** dark mode are both designed → every widget must be theme-driven 
 ## 3. Organisms ✅
 
 - [x] **ProgressCard** (`progress_card.dart`) — red gradient card: "Today's progress", "X of Y completed", big %, white progress bar; handles 0 of 0 / 0%
-- [x] **WeekDateStrip** (`week_date_strip.dart`) — horizontal DateCell row; `WeekDateStrip.week()` helper builds 7 days
+- [x] **WeekDateStrip** (`week_date_strip.dart`) — horizontal DateCell row; `WeekDateStrip.centeredWeek()` builds a 7-day window centered on a date
 - [x] **TaskCard** (`task_card.dart`) — checkbox + title + CategoryTag + time + edit/delete; completed style (strikethrough, muted)
 - [x] **TaskList** (`task_list.dart`) — vertical list of TaskCard with per-task toggle/edit/delete callbacks
 - [x] **EmptyState** (`empty_state.dart`) — tinted icon badge + dashed skeleton placeholder rows (custom dashed-border painter)
@@ -99,24 +99,31 @@ Light **and** dark mode are both designed → every widget must be theme-driven 
 
 ---
 
-## 5. Screens — Tasks
+## 5. Screens — Tasks ✅
 
-- [ ] **Home / Task List** — greeting ("Good morning" + name) + Avatar, ProgressCard, SearchField + FilterIconButton, WeekDateStrip, SectionHeader, TaskList, FAB
-  - [ ] populated state (mock tasks)
-  - [ ] empty state (0 of 0, EmptyState placeholder)
-  - [ ] success toast state (after creating a task)
-  - [ ] checkbox toggle updates progress card
-- [ ] **Create Task** — back, Title, CategoryDropdown, Start/End DateField, Start/End TimeField, DescriptionField, Email reminder AppSwitch, "Create Task" button
-  - [ ] validation error state (ErrorBanner + inline field errors + "required" / "End date must be after start date" + error toast)
-- [ ] **Edit Task** — same layout prefilled with task data, "Save changes" button
+- [x] **Home / Task List** (`features/tasks/home_screen.dart`) — greeting + Avatar, ProgressCard, SearchField + FilterIconButton, WeekDateStrip, SectionHeader, TaskList, FAB
+  - [x] populated state (mock tasks)
+  - [x] empty state (EmptyState when no tasks match)
+  - [x] success toast after create / update / delete
+  - [x] checkbox toggle updates progress card (progress reflects visible list)
+  - [x] search filters by title; week-strip selects the focus day
+- [x] **TaskFormScreen** (`features/tasks/task_form_screen.dart`) — shared Create/Edit form
+  - [x] **Create Task** — Title, Category, Start/End date, Start/End time, Description, Email reminder, "Create Task"
+  - [x] **Edit Task** — same form prefilled, "Save changes"
+  - [x] validation state (ErrorBanner + inline errors: required + "End date must be after start date")
+- [x] Home wired as `AppRoutes.home` (replaced the temporary gallery)
 
 ---
 
-## 6. Screens — Filters
+## 6. Screens — Filters ✅
 
-- [ ] **Filters** — present FiltersSheet as modal bottom sheet from Home filter button
-  - [ ] status filter, category filter, date-range chips + calendar custom range
-  - [ ] Reset clears selections; Show results closes sheet & filters list
+- [x] **Filters** — `showFiltersSheet()` opened from Home's filter button
+  - [x] category filter + date-range chips (All/Today/Yesterday/Last 7 days/Custom) + calendar custom date
+  - [x] Reset clears selections; Show results closes sheet & filters the list
+  - [x] selecting a week-strip day clears the explicit date-range filter
+  - _Status filter omitted — not present in the design sheet (see §3 note)._
+
+> Verified: `flutter analyze` clean; **7 tests pass** (auth flow, home renders tasks, FAB→Create Task, Sign In→Home). `FoundationPreview` is now orphaned (kept as a dev component gallery, no longer routed).
 
 ---
 

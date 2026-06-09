@@ -51,7 +51,7 @@ class _FoundationPreviewState extends State<FoundationPreview> {
   int _selectedDay = 4;
   TaskCategory? _category = TaskCategory.work;
   List<Task> _tasks = mockTasks();
-  final List<DateTime> _week = WeekDateStrip.week();
+  final List<DateTime> _week = WeekDateStrip.centeredWeek();
   late DateTime _weekSelected = _week.first;
   FilterSelection _filters = const FilterSelection();
 

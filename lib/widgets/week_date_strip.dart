@@ -17,11 +17,12 @@ class WeekDateStrip extends StatelessWidget {
   final DateTime selectedDate;
   final ValueChanged<DateTime> onSelect;
 
-  /// Seven consecutive days starting from [start] (defaults to today).
-  static List<DateTime> week({DateTime? start}) {
-    final DateTime base = start ?? DateTime.now();
+  /// Seven days centered on [around] (defaults to today): three days before,
+  /// the day itself, then three days after.
+  static List<DateTime> centeredWeek({DateTime? around}) {
+    final DateTime base = around ?? DateTime.now();
     final DateTime day = DateTime(base.year, base.month, base.day);
-    return List<DateTime>.generate(7, (int i) => day.add(Duration(days: i)));
+    return List<DateTime>.generate(7, (int i) => day.add(Duration(days: i - 3)));
   }
 
   bool _sameDay(DateTime a, DateTime b) =>
