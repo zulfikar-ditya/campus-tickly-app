@@ -85,12 +85,17 @@ Light **and** dark mode are both designed → every widget must be theme-driven 
 
 ---
 
-## 4. Screens — Auth
+## 4. Screens — Auth ✅
 
-- [ ] **SignIn ("Welcome back")** — logo, title, subtitle, email, password (eye), "Forgot password?", Sign In button, footer → Create account
-- [ ] **CreateAccount** — Full name, Email, Password, Confirm password, Sign Up, footer → Sign in
-- [ ] **ForgotPassword** — back button, title, subtitle, email, "Send reset link", footer → Back to sign in
-- [ ] **ResetPassword** — back button, title, subtitle, New password, Confirm password, "Save new password", footer
+- [x] **AuthScaffold** (`features/auth/auth_scaffold.dart`) — shared layout (back/logo, title+subtitle, scroll body, pinned footer)
+- [x] **Validators** (`utils/validators.dart`) — required / email / password / matches
+- [x] **SignIn ("Welcome back")** — logo, email, password (eye), "Forgot password?", Sign In, footer → Create account
+- [x] **CreateAccount** — Full name, Email, Password, Confirm password, Sign Up, footer → Sign in
+- [x] **ForgotPassword** — back button, email, "Send reset link" → Reset password, footer → Back to sign in
+- [x] **ResetPassword** — back button, New password, Confirm password, "Save new password" → toast + back to sign in
+- [x] Routing wired in `app.dart` (`initialRoute: signIn`); **home temporarily → FoundationPreview** until HomeScreen exists
+
+> Verified: `flutter analyze` clean; 4 tests pass (smoke + nav to Create account + Sign In validation + Forgot password). Successful submit on Sign In/Create account navigates to `home`.
 
 ---
 
