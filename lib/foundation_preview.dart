@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
 
+import 'models/filter_selection.dart';
+import 'models/task.dart';
 import 'models/task_category.dart';
+import 'mock/mock_tasks.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_spacing.dart';
 import 'widgets/app_avatar.dart';
 import 'widgets/app_checkbox.dart';
+import 'widgets/app_fab.dart';
 import 'widgets/app_logo.dart';
 import 'widgets/app_progress_bar.dart';
 import 'widgets/app_switch.dart';
 import 'widgets/app_text_field.dart';
+import 'widgets/app_toast.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/category_dropdown.dart';
 import 'widgets/category_tag.dart';
 import 'widgets/date_cell.dart';
 import 'widgets/date_time_fields.dart';
+import 'widgets/empty_state.dart';
+import 'widgets/error_banner.dart';
 import 'widgets/filter_icon_button.dart';
+import 'widgets/filters_sheet.dart';
 import 'widgets/password_field.dart';
 import 'widgets/picker_field.dart';
 import 'widgets/primary_button.dart';
+import 'widgets/progress_card.dart';
 import 'widgets/search_field.dart';
 import 'widgets/section_header.dart';
 import 'widgets/selectable_chip.dart';
+import 'widgets/task_list.dart';
 import 'widgets/text_link.dart';
+import 'widgets/week_date_strip.dart';
 
 /// TEMPORARY component gallery — replace with the Sign In screen once screens
 /// are built. Exercises every atom/molecule so they can be eyeballed in
@@ -39,18 +50,29 @@ class _FoundationPreviewState extends State<FoundationPreview> {
   int _selectedChip = 1;
   int _selectedDay = 4;
   TaskCategory? _category = TaskCategory.work;
+  List<Task> _tasks = mockTasks();
+  final List<DateTime> _week = WeekDateStrip.week();
+  late DateTime _weekSelected = _week.first;
+  FilterSelection _filters = const FilterSelection();
+
+  void _toggleTask(Task task, bool value) {
+    setState(() {
+      _tasks = <Task>[
+        for (final Task t in _tasks)
+          t.id == task.id ? t.copyWith(isDone: value) : t,
+      ];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final DateTime today = DateTime.now();
     final List<String> chips = <String>['All', 'Today', 'Yesterday', 'Last 7 days'];
+    final int doneCount = _tasks.where((Task t) => t.isDone).length;
 
     return Scaffold(
       appBar: AppBar(title: const AppLogo()),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: AppFab(onPressed: () {}),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: <Widget>[
@@ -168,8 +190,56 @@ class _FoundationPreviewState extends State<FoundationPreview> {
             onChanged: (bool v) => setState(() => _reminder = v),
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          _label(context, 'Progress card'),
+          ProgressCard(completed: doneCount, total: _tasks.length),
+
+          _label(context, 'Week strip'),
+          WeekDateStrip(
+            days: _week,
+            selectedDate: _weekSelected,
+            onSelect: (DateTime d) => setState(() => _weekSelected = d),
+          ),
+
+          _label(context, 'Task list'),
           const SectionHeader(title: 'Today', trailing: '5 tasks'),
+          const SizedBox(height: AppSpacing.md),
+          TaskList(
+            tasks: _tasks,
+            onToggle: _toggleTask,
+            onEdit: (_) {},
+            onDelete: (_) {},
+          ),
+
+          _label(context, 'Error banner & toasts'),
+          const ErrorBanner(
+            message: 'Please fix the errors below before submitting.',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: PrimaryButton(
+                  label: 'Success toast',
+                  onPressed: () =>
+                      AppToast.success(context, 'Task created successfully!'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: PrimaryButton(
+                  label: 'Open filters',
+                  onPressed: () async {
+                    final FilterSelection? result =
+                        await showFiltersSheet(context, _filters);
+                    if (result != null) setState(() => _filters = result);
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          _label(context, 'Empty state'),
+          const EmptyState(),
 
           const SizedBox(height: AppSpacing.xl),
           AuthFooter(

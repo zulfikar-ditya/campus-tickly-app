@@ -66,18 +66,22 @@ Light **and** dark mode are both designed → every widget must be theme-driven 
 
 ---
 
-## 3. Organisms
+## 3. Organisms ✅
 
-- [ ] **ProgressCard** — red card: "Today's progress", "X of Y completed", big %, progress bar (empty variant = 0 of 0 / 0%)
-- [ ] **WeekDateStrip** — horizontal scroll/row of DateCell for the week (Sat–Fri)
-- [ ] **TaskCard / TaskRow** — checkbox + title + CategoryTag + time; completed style (checked, muted)
-- [ ] **TaskList** — vertical list of TaskRow under SectionHeader
-- [ ] **EmptyState** — illustration/placeholder icon + skeleton/dashed placeholder rows (home with no tasks)
-- [ ] **AppToast / Snackbar** — success ("Task created successfully!", green) and error ("Failed to save. Please try again.", red) variants
-- [ ] **ErrorBanner** — inline form banner ("Please fix the errors below before submitting")
-- [ ] **AppFAB** — floating red "+" add-task button
-- [ ] **AppCalendar** — month calendar picker w/ range/selected styling (used in Filters)
-- [ ] **FiltersSheet** — bottom sheet: drag handle, title + Reset, Date chips (All/Today/Yesterday/Last 7 days/Custom), calendar, Type chips, "Show results" button
+- [x] **ProgressCard** (`progress_card.dart`) — red gradient card: "Today's progress", "X of Y completed", big %, white progress bar; handles 0 of 0 / 0%
+- [x] **WeekDateStrip** (`week_date_strip.dart`) — horizontal DateCell row; `WeekDateStrip.week()` helper builds 7 days
+- [x] **TaskCard** (`task_card.dart`) — checkbox + title + CategoryTag + time + edit/delete; completed style (strikethrough, muted)
+- [x] **TaskList** (`task_list.dart`) — vertical list of TaskCard with per-task toggle/edit/delete callbacks
+- [x] **EmptyState** (`empty_state.dart`) — tinted icon badge + dashed skeleton placeholder rows (custom dashed-border painter)
+- [x] **AppToast** (`app_toast.dart`) — `AppToast.success` / `AppToast.error` floating snackbars
+- [x] **ErrorBanner** (`error_banner.dart`) — inline tinted form banner
+- [x] **AppFab** (`app_fab.dart`) — floating "+" add-task button
+- [x] **AppCalendar** (`app_calendar.dart`) — month grid w/ selected day + highlighted range band + month nav
+- [x] **FiltersSheet** (`filters_sheet.dart`) — `showFiltersSheet()` modal: handle, title + Reset, Date chips, calendar, Type chips, "Show results"; returns `FilterSelection`
+
+> Filters: design sheet shows **Date** + **Type** sections (matched). `FilterSelection` model (`models/filter_selection.dart`) holds dateRange + customDate + category. Status filter (mentioned in CLAUDE.md) is **not** in the design sheet, so omitted — revisit if needed.
+>
+> Verified: `flutter analyze` clean, smoke test passes. All organisms exercised in `FoundationPreview`.
 
 ---
 
