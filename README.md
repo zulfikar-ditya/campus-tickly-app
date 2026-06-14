@@ -5,6 +5,9 @@ A simple, good-looking task / to-do app built with **Flutter**, supporting
 in memory (no backend), so it's a clean starting point for wiring up real auth
 and storage later.
 
+## Design Figma
+> [Figma](https://www.figma.com/design/0RHKf9rnC2E3UewGewrmRY/Cakyu---Tickly?node-id=0-1&t=HXl42D19lVIKX9AO-1)
+
 ## Features
 
 - **Authentication screens** — Sign in, Create account, Forgot password, Reset
