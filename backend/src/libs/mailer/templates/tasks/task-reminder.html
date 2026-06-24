@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Task Reminder</title>
+		<style>
+			:root {
+				--color-primary: #f43f5e;
+				--color-primary-dark: #fb7185;
+				--color-foreground: #ffffff;
+				--color-foreground-dark: #0f172a;
+				--color-background: #f1f5f9;
+			}
+
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: Arial, sans-serif;
+				background-color: var(--color-background);
+				color: var(--color-foreground-dark);
+			}
+
+			.container {
+				max-width: 600px;
+				margin: 0 auto;
+				background-color: var(--color-foreground);
+				border-radius: 8px;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+			}
+
+			.header {
+				background: linear-gradient(
+					135deg,
+					var(--color-primary),
+					var(--color-primary-dark)
+				);
+				padding: 40px 20px;
+				text-align: center;
+				color: var(--color-foreground);
+			}
+
+			.header h1 {
+				margin: 0;
+				font-size: 28px;
+				font-weight: bold;
+			}
+
+			.content {
+				padding: 40px 30px;
+			}
+
+			.content h2 {
+				color: var(--color-foreground-dark);
+				font-size: 22px;
+				margin-bottom: 20px;
+			}
+
+			.detail-row {
+				font-size: 16px;
+				line-height: 1.6;
+				color: #374151;
+				margin: 8px 0;
+			}
+
+			.detail-row strong {
+				color: var(--color-foreground-dark);
+			}
+
+			.footer {
+				background-color: var(--color-background);
+				padding: 20px;
+				text-align: center;
+				border-top: 1px solid #e5e7eb;
+			}
+
+			.footer p {
+				color: #9ca3af;
+				font-size: 14px;
+				margin: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>Task Reminder</h1>
+			</div>
+
+			<div class="content">
+				<h2>{{task_title}}</h2>
+				<p class="detail-row"><strong>Category:</strong> {{task_category}}</p>
+				<p class="detail-row"><strong>Starts:</strong> {{task_start}}</p>
+				<p class="detail-row"><strong>Ends:</strong> {{task_end}}</p>
+				<p class="detail-row">{{task_description}}</p>
+			</div>
+
+			<div class="footer">
+				<p>You're receiving this because you enabled email reminders in Tickly.</p>
+			</div>
+		</div>
+	</body>
+</html>
