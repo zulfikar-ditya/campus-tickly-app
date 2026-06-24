@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../controllers/auth_controller.dart';
 import '../../routing/app_routes.dart';
 import '../../theme/app_spacing.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/app_toast.dart';
 import '../../widgets/auth_footer.dart';
 import '../../widgets/password_field.dart';
 import '../../widgets/primary_button.dart';
@@ -30,9 +33,15 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final AuthController auth = context.read<AuthController>();
+    final bool ok = await auth.login(_email.text.trim(), _password.text);
+    if (!mounted) return;
+    // On success the AuthGate swaps to the home screen automatically.
+    if (!ok) {
+      AppToast.error(context, auth.error ?? 'Could not sign in.');
     }
   }
 
@@ -81,7 +90,11 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              PrimaryButton(label: 'Sign In', onPressed: _submit),
+              PrimaryButton(
+                label: 'Sign In',
+                isLoading: context.watch<AuthController>().busy,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

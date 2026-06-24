@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../routing/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import '../../theme/app_spacing.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/app_toast.dart';
 import '../../widgets/auth_footer.dart';
 import '../../widgets/password_field.dart';
 import '../../widgets/primary_button.dart';
@@ -33,9 +35,26 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final AuthController auth = context.read<AuthController>();
+    final NavigatorState navigator = Navigator.of(context);
+    final bool ok = await auth.register(
+      _name.text.trim(),
+      _email.text.trim(),
+      _password.text,
+    );
+    if (!mounted) return;
+    if (ok) {
+      // Backend requires email verification before the first sign-in.
+      AppToast.success(
+        context,
+        'Account created. Check your email to verify, then sign in.',
+      );
+      navigator.maybePop();
+    } else {
+      AppToast.error(context, auth.error ?? 'Could not create account.');
     }
   }
 
@@ -94,7 +113,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 validator: Validators.matches(() => _password.text),
               ),
               const SizedBox(height: AppSpacing.xl),
-              PrimaryButton(label: 'Sign Up', onPressed: _submit),
+              PrimaryButton(
+                label: 'Sign Up',
+                isLoading: context.watch<AuthController>().busy,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

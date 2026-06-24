@@ -18,4 +18,16 @@ enum TaskCategory {
 
   /// Accent color for this category's tag.
   final Color color;
+
+  /// Value sent to / received from the backend (`work`, `meeting`, ...).
+  /// Matches the enum's Dart name.
+  String get apiValue => name;
+
+  /// Parse a backend category string; falls back to [personal] if unknown.
+  static TaskCategory fromApi(String value) {
+    return TaskCategory.values.firstWhere(
+      (TaskCategory c) => c.apiValue == value,
+      orElse: () => TaskCategory.personal,
+    );
+  }
 }

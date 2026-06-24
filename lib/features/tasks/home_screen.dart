@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../controllers/auth_controller.dart';
+import '../../controllers/task_controller.dart';
 import '../../models/filter_selection.dart';
 import '../../models/task.dart';
-import '../../mock/mock_tasks.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../utils/formatters.dart';
@@ -19,7 +21,8 @@ import '../../widgets/task_list.dart';
 import '../../widgets/week_date_strip.dart';
 import 'task_form_screen.dart';
 
-/// Home / task list screen.
+/// Home / task list screen. Tasks come from [TaskController]; the date/category/
+/// search filtering is applied client-side here for an instant UI.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -28,15 +31,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const String _userName = 'Zulfikar';
-
-  List<Task> _tasks = mockTasks();
   late DateTime _selectedDate = _today();
+  FilterSelection _filters = const FilterSelection();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Load the user's tasks once the first frame is scheduled.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TaskController>().fetchTasks();
+    });
+  }
 
   /// Week strip window: the selected date centered with 3 days on each side.
   List<DateTime> get _week => WeekDateStrip.centeredWeek(around: _selectedDate);
-  FilterSelection _filters = const FilterSelection();
-  String _query = '';
 
   static DateTime _today() {
     final DateTime now = DateTime.now();
@@ -76,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  List<Task> get _visibleTasks {
-    return _tasks.where((Task t) {
+  List<Task> _visibleFrom(List<Task> tasks) {
+    return tasks.where((Task t) {
       final bool dateOk = _matchesDate(t);
       final bool categoryOk =
           _filters.category == null || t.category == _filters.category;
@@ -103,18 +112,64 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _toggle(Task task, bool value) {
-    setState(() {
-      _tasks = <Task>[
-        for (final Task t in _tasks)
-          t.id == task.id ? t.copyWith(isDone: value) : t,
-      ];
-    });
+  Future<void> _toggle(Task task, bool value) async {
+    final TaskController controller = context.read<TaskController>();
+    final bool ok = await controller.toggleDone(task, value);
+    if (!ok && mounted) {
+      AppToast.error(
+        context,
+        controller.consumeActionError() ?? 'Could not update task.',
+      );
+    }
   }
 
-  void _delete(Task task) {
-    setState(() => _tasks = _tasks.where((Task t) => t.id != task.id).toList());
+  Future<void> _delete(Task task) async {
+    final TaskController controller = context.read<TaskController>();
+    final bool ok = await controller.delete(task);
+    if (!mounted) return;
     AppToast.success(context, 'Task deleted');
+    if (!ok) {
+      AppToast.error(
+        context,
+        controller.consumeActionError() ?? 'Could not delete task.',
+      );
+    }
+  }
+
+  Future<void> _createTask() async {
+    final Task? draft = await Navigator.of(context).push<Task>(
+      MaterialPageRoute<Task>(builder: (_) => const TaskFormScreen()),
+    );
+    if (draft == null || !mounted) return;
+    final TaskController controller = context.read<TaskController>();
+    final bool ok = await controller.create(draft);
+    if (!mounted) return;
+    if (ok) {
+      AppToast.success(context, 'Task created successfully!');
+    } else {
+      AppToast.error(
+        context,
+        controller.consumeActionError() ?? 'Could not create task.',
+      );
+    }
+  }
+
+  Future<void> _editTask(Task task) async {
+    final Task? updated = await Navigator.of(context).push<Task>(
+      MaterialPageRoute<Task>(builder: (_) => TaskFormScreen(initial: task)),
+    );
+    if (updated == null || !mounted) return;
+    final TaskController controller = context.read<TaskController>();
+    final bool ok = await controller.update(updated);
+    if (!mounted) return;
+    if (ok) {
+      AppToast.success(context, 'Task updated successfully!');
+    } else {
+      AppToast.error(
+        context,
+        controller.consumeActionError() ?? 'Could not update task.',
+      );
+    }
   }
 
   Future<void> _openFilters() async {
@@ -138,117 +193,178 @@ class _HomeScreenState extends State<HomeScreen> {
             _selectedDate = DateTime(d.year, d.month, d.day);
           }
       }
-      // The week strip re-centers on _selectedDate automatically (see _week).
     });
   }
 
-  Future<void> _createTask() async {
-    final Task? task = await Navigator.of(context).push<Task>(
-      MaterialPageRoute<Task>(builder: (_) => const TaskFormScreen()),
+  Future<void> _confirmLogout() async {
+    final bool? yes = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('You will need to sign in again to see your tasks.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Log out'),
+          ),
+        ],
+      ),
     );
-    if (task == null) return;
-    setState(() => _tasks = <Task>[..._tasks, task]);
-    if (mounted) AppToast.success(context, 'Task created successfully!');
-  }
-
-  Future<void> _editTask(Task task) async {
-    final Task? updated = await Navigator.of(context).push<Task>(
-      MaterialPageRoute<Task>(builder: (_) => TaskFormScreen(initial: task)),
-    );
-    if (updated == null) return;
-    setState(() {
-      _tasks = <Task>[
-        for (final Task t in _tasks) t.id == updated.id ? updated : t,
-      ];
-    });
-    if (mounted) AppToast.success(context, 'Task updated successfully!');
+    if (yes != true || !mounted) return;
+    context.read<TaskController>().reset();
+    await context.read<AuthController>().logout();
   }
 
   @override
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
-    final List<Task> visible = _visibleTasks;
+    final TaskController controller = context.watch<TaskController>();
+    final String userName = context.select<AuthController, String>(
+      (AuthController a) => a.user?.name ?? 'there',
+    );
+
+    final List<Task> visible = _visibleFrom(controller.tasks);
     final int doneCount = visible.where((Task t) => t.isDone).length;
+
+    final bool initialLoading =
+        controller.status == TaskListStatus.loading && controller.tasks.isEmpty;
+    final bool loadFailed =
+        controller.status == TaskListStatus.error && controller.tasks.isEmpty;
 
     return Scaffold(
       floatingActionButton: AppFab(onPressed: _createTask),
       body: SafeArea(
-        child: ListView(
-          // Extra bottom padding so the last row's actions clear the FAB.
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.screen,
-            AppSpacing.screen,
-            96,
-          ),
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      _greeting,
-                      style: context.text.bodyMedium?.copyWith(
-                        color: c.textSecondary,
+        child: RefreshIndicator(
+          onRefresh: () => context.read<TaskController>().fetchTasks(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            // Extra bottom padding so the last row's actions clear the FAB.
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.screen,
+              AppSpacing.screen,
+              96,
+            ),
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _greeting,
+                        style: context.text.bodyMedium?.copyWith(
+                          color: c.textSecondary,
+                        ),
                       ),
-                    ),
-                    Text(_userName, style: context.text.headlineSmall),
-                  ],
-                ),
-                const AppAvatar(name: _userName),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            ProgressCard(completed: doneCount, total: visible.length),
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: SearchField(
-                    onChanged: (String v) => setState(() => _query = v),
+                      Text(userName, style: context.text.headlineSmall),
+                    ],
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                FilterIconButton(onTap: _openFilters),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            WeekDateStrip(
-              days: _week,
-              selectedDate: _selectedDate,
-              onSelect: (DateTime d) => setState(() {
-                _selectedDate = d;
-                // Selecting a day clears any explicit date-range filter.
-                _filters = _filters.copyWith(
-                  dateRange: DateRangeFilter.all,
-                  clearCustomDate: true,
-                );
-              }),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            SectionHeader(
-              title: _listTitle,
-              trailing:
-                  '${visible.length} '
-                  '${visible.length == 1 ? 'task' : 'tasks'}',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            if (visible.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(top: AppSpacing.xl),
-                child: EmptyState(),
-              )
-            else
-              TaskList(
-                tasks: visible,
-                onToggle: _toggle,
-                onEdit: _editTask,
-                onDelete: _delete,
+                  GestureDetector(
+                    onTap: _confirmLogout,
+                    child: AppAvatar(name: userName),
+                  ),
+                ],
               ),
-          ],
+              const SizedBox(height: AppSpacing.lg),
+              ProgressCard(completed: doneCount, total: visible.length),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: SearchField(
+                      onChanged: (String v) => setState(() => _query = v),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  FilterIconButton(onTap: _openFilters),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              WeekDateStrip(
+                days: _week,
+                selectedDate: _selectedDate,
+                onSelect: (DateTime d) => setState(() {
+                  _selectedDate = d;
+                  // Selecting a day clears any explicit date-range filter.
+                  _filters = _filters.copyWith(
+                    dateRange: DateRangeFilter.all,
+                    clearCustomDate: true,
+                  );
+                }),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              SectionHeader(
+                title: _listTitle,
+                trailing:
+                    '${visible.length} '
+                    '${visible.length == 1 ? 'task' : 'tasks'}',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              if (initialLoading)
+                const Padding(
+                  padding: EdgeInsets.only(top: AppSpacing.xl),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (loadFailed)
+                _LoadError(
+                  message: controller.error ?? 'Could not load your tasks.',
+                  onRetry: () => context.read<TaskController>().fetchTasks(),
+                )
+              else if (visible.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(top: AppSpacing.xl),
+                  child: EmptyState(),
+                )
+              else
+                TaskList(
+                  tasks: visible,
+                  onToggle: _toggle,
+                  onEdit: _editTask,
+                  onDelete: _delete,
+                ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// Inline error + retry shown when the initial task load fails.
+class _LoadError extends StatelessWidget {
+  const _LoadError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xl),
+      child: Column(
+        children: <Widget>[
+          Icon(
+            Icons.cloud_off_outlined,
+            size: 40,
+            color: context.colors.textSecondary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: context.text.bodyMedium?.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextButton(onPressed: onRetry, child: const Text('Try again')),
+        ],
       ),
     );
   }

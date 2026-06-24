@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:campus_tickly/app.dart';
+import 'helpers/test_harness.dart';
 
 void main() {
   testWidgets('Sign up link navigates to Create account', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TicklyApp());
+    await pumpApp(tester, backend());
 
     await tester.tap(find.text('Sign up'));
     await tester.pumpAndSettle();
@@ -20,7 +20,7 @@ void main() {
   testWidgets('Sign In shows validation errors when empty', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TicklyApp());
+    await pumpApp(tester, backend());
 
     await tester.tap(find.widgetWithText(FilledButton, 'Sign In'));
     await tester.pumpAndSettle();
@@ -32,7 +32,7 @@ void main() {
   testWidgets('Forgot password link opens the reset-link screen', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const TicklyApp());
+    await pumpApp(tester, backend());
 
     await tester.tap(find.text('Forgot password?'));
     await tester.pumpAndSettle();
