@@ -130,6 +130,36 @@ default (`10.0.2.2` on Android, otherwise `localhost`). Tip: add
 `--dart-define-from-file=.env` to your IDE run configuration (VS Code
 `launch.json` → `"args"`) so you don't type it each time.
 
+#### Running on a physical phone
+
+`10.0.2.2` and `localhost` do **not** work from a real device — they only mean
+something inside an emulator/simulator or on the host itself. To run on a
+physical phone:
+
+1. Put the phone and the PC on the **same Wi-Fi network**.
+2. Find your PC's LAN IP (`ipconfig` on Windows → IPv4 Address, e.g.
+   `192.168.0.101`) and set it in `.env`:
+   ```
+   API_BASE_URL=http://192.168.0.101:3000
+   ```
+   This is a DHCP address — if it changes after a reconnect, update `.env`.
+3. Allow inbound port 3000 through the PC firewall once (elevated PowerShell on
+   Windows):
+   ```powershell
+   New-NetFirewallRule -DisplayName "Tickly backend 3000" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow
+   ```
+4. **Cleartext HTTP**: Android 9+ blocks plaintext `http://` by default. Debug
+   builds already allow it (`android:usesCleartextTraffic="true"` in
+   `android/app/src/debug/AndroidManifest.xml`); for a release build you'd serve
+   the API over HTTPS or add a network-security config.
+5. Sanity check: open `http://<PC-LAN-IP>:3000/health` in the **phone's**
+   browser — a JSON `"healthy"` response means the app will connect.
+6. Fully stop and relaunch (a hot reload won't pick up `.env` or manifest
+   changes): `flutter run --dart-define-from-file=.env`.
+
+> The API client times out after 15s, so a wrong/unreachable URL surfaces a
+> "could not reach the server" error instead of spinning forever.
+
 ## Using the app
 
 1. Start the backend (above), then launch the app.

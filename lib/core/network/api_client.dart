@@ -63,15 +63,18 @@ class ApiClient {
     return _send(() async => _http.delete(_uri(path), headers: await _headers()));
   }
 
+  /// Hard cap so a wrong/unreachable host fails fast instead of hanging.
+  static const Duration _timeout = Duration(seconds: 15);
+
   /// Runs [request], decodes the envelope, and either returns `data` or throws.
   Future<dynamic> _send(Future<http.Response> Function() request) async {
     final http.Response response;
     try {
-      response = await request();
+      response = await request().timeout(_timeout);
     } catch (error) {
       throw ApiException(
-        'Could not reach the server. Check your connection and that the '
-        'backend is running.',
+        'Could not reach the server at ${AppConfig.apiBaseUrl}. Check that the '
+        'backend is running and that the API URL is correct for this device.',
       );
     }
 
