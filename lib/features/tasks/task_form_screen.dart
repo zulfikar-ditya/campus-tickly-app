@@ -39,6 +39,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   String? _categoryError;
   String? _startDateError;
   String? _endDateError;
+  String? _endTimeError;
 
   @override
   void initState() {
@@ -99,36 +100,54 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         } else {
           _endTime = picked;
         }
+        // Either edit can resolve a start/end ordering conflict.
+        _endTimeError = null;
       });
     }
   }
 
   void _submit() {
+    final DateTime? startDate = _startDate;
+    final DateTime? endDate = _endDate;
+    final TimeOfDay startTime =
+        _startTime ?? const TimeOfDay(hour: 9, minute: 0);
+    final TimeOfDay endTime = _endTime ?? const TimeOfDay(hour: 10, minute: 0);
+
+    // Combine date + time so the start/end check accounts for the clock, not
+    // just the calendar day — the backend rejects end <= start, and two times
+    // on the same day can still invert (e.g. start 7pm, end 10am).
+    final DateTime? startAt = startDate == null
+        ? null
+        : DateTime(startDate.year, startDate.month, startDate.day,
+            startTime.hour, startTime.minute);
+    final DateTime? endAt = endDate == null
+        ? null
+        : DateTime(endDate.year, endDate.month, endDate.day, endTime.hour,
+            endTime.minute);
+
     setState(() {
       _titleError = _title.text.trim().isEmpty ? 'Title is required' : null;
       _categoryError = _category == null ? 'Category is required' : null;
-      _startDateError = _startDate == null ? 'Start date is required' : null;
-      if (_endDate == null) {
+      _startDateError = startDate == null ? 'Start date is required' : null;
+      _endDateError = null;
+      _endTimeError = null;
+      if (endDate == null) {
         _endDateError = 'End date is required';
-      } else if (_startDate != null && _endDate!.isBefore(_startDate!)) {
+      } else if (startDate != null && endDate.isBefore(startDate)) {
         _endDateError = 'End date must be after start date';
-      } else {
-        _endDateError = null;
+      } else if (startAt != null && endAt != null && !endAt.isAfter(startAt)) {
+        // Same day, but the end time is at or before the start time.
+        _endTimeError = 'End time must be after start time';
       }
       _showBanner =
           _titleError != null ||
           _categoryError != null ||
           _startDateError != null ||
-          _endDateError != null;
+          _endDateError != null ||
+          _endTimeError != null;
     });
 
     if (_showBanner) return;
-
-    final DateTime startDate = _startDate!;
-    final DateTime endDate = _endDate!;
-    final TimeOfDay startTime =
-        _startTime ?? const TimeOfDay(hour: 9, minute: 0);
-    final TimeOfDay endTime = _endTime ?? const TimeOfDay(hour: 10, minute: 0);
 
     final Task result =
         (widget.initial ??
@@ -136,26 +155,14 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
                   title: '',
                   category: _category!,
-                  start: startDate,
-                  end: endDate,
+                  start: startAt!,
+                  end: endAt!,
                 ))
             .copyWith(
               title: _title.text.trim(),
               category: _category,
-              start: DateTime(
-                startDate.year,
-                startDate.month,
-                startDate.day,
-                startTime.hour,
-                startTime.minute,
-              ),
-              end: DateTime(
-                endDate.year,
-                endDate.month,
-                endDate.day,
-                endTime.hour,
-                endTime.minute,
-              ),
+              start: startAt!,
+              end: endAt!,
               description: _description.text.trim(),
               emailReminder: _emailReminder,
             );
@@ -256,6 +263,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 child: TimeField(
                   label: 'End time',
                   value: _endTime,
+                  errorText: _endTimeError,
                   onTap: () => _pickTime(isStart: false),
                 ),
               ),
