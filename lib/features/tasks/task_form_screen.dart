@@ -281,8 +281,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               border: Border.all(color: c.border),
             ),
             child: AppSwitch(
-              title: 'Email reminder',
-              subtitle: 'Get a reminder by email before this task',
+              title: 'Reminder',
+              subtitle: 'Get a notification 10 minutes before this task starts',
               value: _emailReminder,
               onChanged: (bool v) => setState(() => _emailReminder = v),
             ),

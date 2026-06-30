@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/network/api_exception.dart';
+import '../core/notifications/reminder_scheduler.dart';
 import '../data/task_repository.dart';
 import '../models/task.dart';
 
@@ -10,9 +11,13 @@ enum TaskListStatus { idle, loading, loaded, error }
 /// [TaskRepository]. The home view observes [tasks] and applies its own
 /// date/category/search filtering on top for an instant UI.
 class TaskController extends ChangeNotifier {
-  TaskController(this._repository, {this.onUnauthorized});
+  TaskController(this._repository, {this.reminders, this.onUnauthorized});
 
   final TaskRepository _repository;
+
+  /// Keeps on-device reminder notifications in sync with the task list.
+  /// Optional so the controller can run without notifications (e.g. in tests).
+  final ReminderScheduler? reminders;
 
   /// Invoked when a request fails with 401 so the app can sign the user out.
   final VoidCallback? onUnauthorized;
@@ -42,6 +47,7 @@ class TaskController extends ChangeNotifier {
     try {
       _tasks = await _repository.fetchTasks();
       _status = TaskListStatus.loaded;
+      await reminders?.syncAll(_tasks);
     } on ApiException catch (e) {
       _status = TaskListStatus.error;
       _error = e.message;
@@ -58,6 +64,7 @@ class TaskController extends ChangeNotifier {
     return _mutate(() async {
       final Task created = await _repository.create(draft);
       _tasks = <Task>[..._tasks, created];
+      await reminders?.schedule(created);
     });
   }
 
@@ -67,6 +74,7 @@ class TaskController extends ChangeNotifier {
       _tasks = <Task>[
         for (final Task t in _tasks) t.id == updated.id ? updated : t,
       ];
+      await reminders?.schedule(updated);
     });
   }
 
@@ -76,6 +84,8 @@ class TaskController extends ChangeNotifier {
       _tasks = <Task>[
         for (final Task t in _tasks) t.id == updated.id ? updated : t,
       ];
+      // Completing a task drops its reminder; un-completing re-schedules it.
+      await reminders?.schedule(updated);
     });
   }
 
@@ -83,6 +93,7 @@ class TaskController extends ChangeNotifier {
     return _mutate(() async {
       await _repository.delete(task.id);
       _tasks = _tasks.where((Task t) => t.id != task.id).toList();
+      await reminders?.cancel(task.id);
     });
   }
 
@@ -92,6 +103,7 @@ class TaskController extends ChangeNotifier {
     _status = TaskListStatus.idle;
     _error = null;
     _actionError = null;
+    reminders?.cancelAll();
     notifyListeners();
   }
 
